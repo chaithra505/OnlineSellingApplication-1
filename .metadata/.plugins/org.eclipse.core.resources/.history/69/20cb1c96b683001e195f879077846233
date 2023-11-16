@@ -1,0 +1,66 @@
+package com.sonata.dto;
+
+import com.sonata.model.Cart;
+
+
+public class ShoppingCartResponce {
+	
+	
+	private Cart cart;
+	private Product products;
+	private UserDto user;
+	
+	
+	public ShoppingCartResponce() {}
+
+
+	
+
+
+	public ShoppingCartResponce(Cart cart, Product products, UserDto user) {
+		super();
+		this.cart = cart;
+		this.products = products;
+		this.user = user;
+	}
+
+
+
+
+
+	public Cart getCart() {
+		return cart;
+	}
+
+
+	public void setCart(Cart cart) {
+		this.cart = cart;
+	}
+
+
+	public Product getProducts() {
+		return products;
+	}
+
+
+	public void setProducts(Product products) {
+		this.products = products;
+	}
+
+
+	public UserDto getUser() {
+		return user;
+	}
+
+
+	public void setUser(UserDto user) {
+		this.user = user;
+	}
+	
+	
+
+	
+	
+
+	
+}

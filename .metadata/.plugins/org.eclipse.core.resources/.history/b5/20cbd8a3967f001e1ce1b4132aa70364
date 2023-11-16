@@ -1,0 +1,108 @@
+package com.sonata.service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonata.dto.ShoppingCartRequest;
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.model.Cart;
+import com.sonata.model.Product;
+import com.sonata.repo.CartRepo;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class Cart1Service {
+
+    @Autowired
+    private WebClient.Builder webBuilder;
+
+    @Autowired
+    private CartRepo cartrepo;
+
+    public ShoppingCartResponce processAddRequest(int uId, List<ShoppingCartRequest> shoppingCartRequest) {
+        String productserviceurl = "http://localhost:8082/product/findAll/" +
+                shoppingCartRequest.stream().map(e -> String.valueOf(e.getpId())).collect(Collectors.joining(","));
+
+        List<Product> productServiceList = webBuilder.build()
+                .get()
+                .uri(productserviceurl)
+                .retrieve()
+                .bodyToFlux(Product.class)
+                .collectList()
+                .block();
+
+        double totalCost = calculateTotalCost(productServiceList, shoppingCartRequest);
+
+        Cart cart = createAndSaveCart(uId, totalCost, productServiceList);
+
+        return createShoppingCartResponse(cart);
+    }
+
+    private double calculateTotalCost(List<Product> productServiceList, List<ShoppingCartRequest> shoppingCartRequest) {
+        double[] totalCost = {0.0};
+
+        productServiceList.forEach(psl -> {
+            shoppingCartRequest.forEach(scr -> {
+                if (psl.getpId() == scr.getpId()) {
+                    psl.setQuantity(scr.getQuantity());
+                    totalCost[0] += psl.getPrice() * scr.getQuantity();
+                }
+            });
+        });
+
+        return totalCost[0];
+    }
+
+    private Cart createAndSaveCart(int userId, double totalCost, List<Product> productServiceList) {
+        int randomCartId = (int) (Math.random() * Math.pow(10, 10));
+        Cart cart = new Cart();
+        cart.setUserId(userId);
+        cart.setCartId(randomCartId);
+        cart.setTotalCost(totalCost);
+
+        try {
+            String jsonProductList = new ObjectMapper().writeValueAsString(productServiceList);
+            cart.setProducts(jsonProductList);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return cartrepo.save(cart);
+    }
+
+    private ShoppingCartResponce createShoppingCartResponse(Cart cart) {
+        ShoppingCartResponce response = new ShoppingCartResponce();
+        response.setCartId(cart.getCartId());
+        response.setUserId(cart.getUserId());
+        response.setTotalItems(cart.getTotalItems());
+        response.setTotalCost(cart.getTotalCost());
+
+        try {
+            List<Product> productServiceList = new ObjectMapper().readValue(cart.getProducts(), new TypeReference<List<Product>>() {});
+            response.setProduct(productServiceList);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        return response;
+    }
+
+    public List<ShoppingCartResponce> getShoppingCart(int userId) {
+        List<Cart> carts = cartrepo.findByUserId(userId);
+        List<ShoppingCartResponce> cartResponse = new ArrayList<>();
+
+        for (Cart cart : carts) {
+            ShoppingCartResponce response = createShoppingCartResponse(cart);
+            cartResponse.add(response);
+        }
+
+        return cartResponse;
+    }
+}

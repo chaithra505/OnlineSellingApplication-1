@@ -1,0 +1,140 @@
+package com.sonata.model;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import com.sonata.dto.Product;
+import com.sonata.dto.ShoppingCartRequest;
+import com.sonata.dto.UserDto;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "cart_details")
+public class Cart {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int cartId;
+
+	@Column(name = "u_id")
+	private int userId;
+
+	private int pId;
+
+	private int totalItems;
+	private Double totalCost;
+	private UserDto userDto;
+
+	private List<Product> products = new ArrayList<>();
+
+	public List<ShoppingCartRequest> cartRequest;
+
+	public List<ShoppingCartRequest> getCartRequest() {
+		return cartRequest;
+	}
+
+	public void setCartRequest(List<ShoppingCartRequest> cartRequest) {
+		this.cartRequest = cartRequest;
+	}
+
+	public Cart() {
+	}
+
+	public int getCartId() {
+		return cartId;
+	}
+
+	public void setCartId(int cartId) {
+		this.cartId = cartId;
+	}
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+
+	public int getpId() {
+		return pId;
+	}
+
+	public void setpId(int pId) {
+		this.pId = pId;
+	}
+
+	public int getTotalItems() {
+		return totalItems;
+	}
+
+	public void setTotalItems(int totalItems) {
+		this.totalItems = totalItems;
+	}
+
+	public Double getTotalCost() {
+		return totalCost;
+	}
+
+	public void setTotalCost(Double totalCost) {
+		this.totalCost = totalCost;
+	}
+
+	public UserDto getUserDto() {
+		return userDto;
+	}
+
+	public void setUserDto(UserDto userDto) {
+		this.userDto = userDto;
+	}
+
+	public List<Product> getProducts() {
+		return products;
+	}
+
+	public void setProducts(List<Product> products) {
+		this.products = products;
+	}
+
+	// methods
+	public void addProduct(Product product, int quantity) {
+		// Check if the product is already in the cart
+		Optional<Product> existingProduct = products.stream().filter(p -> p.getpId() == product.getpId()).findFirst();
+
+		if (existingProduct.isPresent()) {
+			// If the product is already in the cart, update the quantity
+			Product existing = existingProduct.get();
+			existing.setQuantity(existing.getQuantity() + quantity);
+		} else {
+			// If the product is not in the cart, add it
+			product.setQuantity(quantity);
+			products.add(product);
+		}
+
+		// Update total items, total cost, or any other relevant cart details
+		updateCartDetails();
+	}
+
+	private void updateCartDetails() {
+		int totalItems = 0;
+		Double totalCost = 0.0;
+
+		for (Product product : products) {
+			// Assuming each product has a quantity and price field
+			totalItems += product.getQuantity();
+			totalCost += product.getQuantity() * product.getPrice();
+		}
+
+		// Update the cart details
+		setTotalItems(totalItems);
+		setTotalCost(totalCost);
+
+	}
+
+}

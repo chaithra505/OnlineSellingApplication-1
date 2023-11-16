@@ -1,0 +1,72 @@
+package com.sonata.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.repo.CartRepo;
+
+@Service
+public class CartService {
+	
+	@Autowired
+	 private  CartRepo cartRepo;
+
+	 @Autowired
+	   private RestTemplate restTemplate;
+
+	
+	 
+	 
+//	 public ShoppingCartResponce processAddRequest(Long userId, List<ShoppingCartRequest> reqProductList) {
+//		//call user-id
+//		//call product-service
+//	}
+//	 
+//	 
+	
+	 public ShoppingCartResponce checkUserExists(Long userId) {
+		    String userServiceUrl = "http://localhost:8081/user/";
+		    String userEndpoint = userId.toString();
+
+		    try {
+		        // Make the request and capture the response
+		        ResponseEntity<String> responseEntity = restTemplate.getForEntity(userServiceUrl + userEndpoint, String.class);
+
+		        // Check the response status code
+		        if (responseEntity.getStatusCode() == HttpStatus.OK) {
+		            // User exists
+		            return new ShoppingCartResponce(true, "User exists");
+		        } else {
+		            // User does not exist or other error
+		            return new ShoppingCartResponce(false, "User does not exist");
+		        }
+		    } catch (HttpClientErrorException.NotFound ex) {
+		        // User does not exist
+		        return new ShoppingCartResponce(false, "User does not exist");
+		    } catch (Exception e) {
+		        // Handle other exceptions
+		        return new ShoppingCartResponce(false, "Error checking user existence");
+		    }
+		}
+
+
+
+			
+			
+			
+			
+			
+			
+			
+		
+
+
+}
+	
+	
+	

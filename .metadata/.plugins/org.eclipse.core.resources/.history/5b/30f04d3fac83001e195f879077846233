@@ -1,0 +1,177 @@
+package com.sonata.model;
+
+import java.util.List;
+
+import com.sonata.dto.ShoppingCartRequest;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+
+@Entity
+@Table(name="cart_details")
+public class Cart {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int cartId;
+	
+	@Column(name="u_id")
+	 private int userId;
+	
+	private int pId;
+	
+	private int totalItems;
+	private Double totalCost;
+	private Product products;
+	private UserDto userdto;
+	
+	public List<ShoppingCartRequest> cartRequest;
+	
+	
+	
+	
+
+	
+
+
+
+	public List<ShoppingCartRequest> getCartRequest() {
+		return cartRequest;
+	}
+
+
+
+
+	public void setCartRequest(List<ShoppingCartRequest> cartRequest) {
+		this.cartRequest = cartRequest;
+	}
+
+
+
+
+	public Cart() {}
+
+
+
+
+	public int getCartId() {
+		return cartId;
+	}
+
+
+
+
+	public void setCartId(int cartId) {
+		this.cartId = cartId;
+	}
+
+
+
+
+	public int getUserId() {
+		return userId;
+	}
+
+
+
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+
+
+
+
+	public int getpId() {
+		return pId;
+	}
+
+
+
+
+	public void setpId(int pId) {
+		this.pId = pId;
+	}
+
+
+
+
+	public int getTotalItems() {
+		return totalItems;
+	}
+
+
+
+
+	public void setTotalItems(int totalItems) {
+		this.totalItems = totalItems;
+	}
+
+
+
+
+	public Double getTotalCost() {
+		return totalCost;
+	}
+
+
+
+
+	public void setTotalCost(Double totalCost) {
+		this.totalCost = totalCost;
+	}
+
+
+
+
+	
+
+
+
+
+	public Product getProducts() {
+		return products;
+	}
+
+
+
+
+	public void setProducts(Product products) {
+		this.products = products;
+	}
+
+
+
+
+	public UserDto getUserdto() {
+		return userdto;
+	}
+
+
+
+
+	public void setUserdto(UserDto userdto) {
+		this.userdto = userdto;
+	}
+
+
+
+
+	
+
+
+		
+}
+	
+
+
+
+	
+	
+	
+
+

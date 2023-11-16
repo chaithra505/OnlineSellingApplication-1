@@ -1,0 +1,62 @@
+package com.sonata.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.sonata.dto.Product;
+import com.sonata.dto.ShoppingCartRequest;
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.dto.UserDto;
+import com.sonata.model.Cart;
+import com.sonata.repo.CartRepo;
+
+import jakarta.ws.rs.NotFoundException;
+
+@Service
+public class CartService {
+
+	@Autowired
+	private CartRepo cartRepo;
+
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	public ShoppingCartResponce addProductToCart(ShoppingCartRequest request) {
+   
+		 UserDto user = getUserDetails(request.getUserId());
+		 Product product = getProductDetails(request.getpId());
+		  
+		 
+		  if (user == null || product == null) {
+	            throw new NotFoundException("User or product not found");
+	        }
+		  
+		  Cart cart = cartRepo.findByUserId(request.getUserId());
+		  
+		  if (cart == null) {
+	            
+	            cart = new Cart();
+	            cart.setUser_id(request.getUserId());
+	        }
+		  
+		 
+		  
+    }
+
+
+  
+	
+	
+	
+	
+	
+	private UserDto getUserDetails(int userId) {
+        return restTemplate.getForObject("http://localhost:8081/user/dto/{uId}", UserDto.class, userId);
+    }
+
+    private Product getProductDetails(int pId) {
+        return restTemplate.getForObject("http://localhost:8082/product/product-details/{pId}", Product.class, pId);
+    }
+	
+}

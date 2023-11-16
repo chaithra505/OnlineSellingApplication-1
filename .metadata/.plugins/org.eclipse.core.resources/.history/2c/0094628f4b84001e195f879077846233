@@ -1,0 +1,92 @@
+package com.sonata.service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonata.dto.Product;
+import com.sonata.dto.ShoppingCartRequest;
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.dto.UserDto;
+import com.sonata.model.Cart;
+import com.sonata.repo.CartRepo;
+
+@Service
+public class CartService {
+
+    @Autowired
+    private CartRepo cartRepo;
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+     public ShoppingCartResponce processAddRequest(int userId, List<ShoppingCartRequest> shoppingCartRequestList) {
+         UserDto userDto = getUserDetails(userId);
+
+         // Call product-service to fetch product details
+         List<Product> productServiceList = fetchProductDetails(shoppingCartRequestList);
+
+         // Calculate total cost
+         final Double[] totalCost = {0.0};
+         productServiceList.forEach(psl -> {
+             shoppingCartRequestList.forEach(scr -> {
+                 if (psl.getpId() == scr.getpId()) {
+                     psl.setQuantity(scr.getQuantity());
+                     totalCost[0] = totalCost[0] + psl.getPrice() * scr.getQuantity();
+                 }
+             });
+         });
+
+         Cart cartEntity = new Cart();
+         cartEntity.setUser_id(userId);
+         cartEntity.setCartId();
+         cartEntity.setTotalItems(productServiceList.size());
+         cartEntity.setTotalCost(totalCost[0]);
+         try {
+             cartEntity.setProduct(new ObjectMapper().writeValueAsString(productServiceList));
+         } catch (JsonProcessingException e) {
+             throw new RuntimeException(e);
+         }
+
+         // Save CartEntity
+         cartEntity = cartRepo.save(cartEntity);
+
+         // Create API response
+         ShoppingCartResponce response = new ShoppingCartResponce();
+         response.setCartId(cartEntity.getCartId());
+         response.setTotalItems(cartEntity.getTotalItems());
+         response.setTotalCost(cartEntity.getTotalCost());
+         response.setProducts(productServiceList);
+         response.setUser(userDto);
+
+         return response;
+     }
+
+     private UserDto getUserDetails(int userId) {
+         return restTemplate.getForObject("http://localhost:8081/user/dto/{userId}", UserDto.class, userId);
+     }
+
+     private List<Product> fetchProductDetails(List<ShoppingCartRequest> shoppingCartRequestList) {
+         String productIds = shoppingCartRequestList.stream()
+                 .map(request -> String.valueOf(request.getpId()))
+                 .collect(Collectors.joining(","));
+         String productServiceUrl = "http://product-service/products/getProducts/" + productIds;
+         return restTemplate.exchange(
+                 productServiceUrl,
+                 HttpMethod.GET,
+                 null,
+                 new ParameterizedTypeReference<List<Product>>() {
+                 }).getBody();
+     }
+ 
+
+    
+
+}

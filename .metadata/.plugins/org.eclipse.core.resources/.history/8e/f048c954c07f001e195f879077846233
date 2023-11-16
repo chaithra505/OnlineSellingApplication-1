@@ -1,0 +1,65 @@
+package com.sonata.dto;
+
+import java.util.List;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonata.model.Product;
+
+import lombok.Builder;
+
+@Builder
+public class ShoppingCartResponce {
+	private int userId;
+	private int cartId;
+	private int totalItems;
+	private Double totalCost;
+	private List<Product> products;
+		
+	
+	
+	public int getUserId() {
+		return userId;
+	}
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+	public List<Product> getProducts() {
+		return products;
+	}
+	public void setProducts(List<Product> products) {
+		this.products = products;
+	}
+	public int getCartId() {
+		return cartId;
+	}
+	public void setCartId(int cartId) {
+		this.cartId = cartId;
+	}
+	public int getTotalItems() {
+		return totalItems;
+	}
+	public void setTotalItems(int totalItems) {
+		this.totalItems = totalItems;
+	}
+	public Double getTotalCost() {
+		return totalCost;
+	}
+	public void setTotalCost(Double totalCost) {
+		this.totalCost = totalCost;
+	}
+
+	public void setProducts(String productsJson) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // Convert the JSON string to a List<Product>
+            this.products = objectMapper.readValue(productsJson, new TypeReference<List<Product>>() {});
+        } catch (JsonProcessingException e) {
+            // Handle the exception according to your application's needs
+            e.printStackTrace();
+        }
+    }
+
+
+}

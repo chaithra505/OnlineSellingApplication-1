@@ -1,0 +1,52 @@
+package com.sonata.dto;
+
+import java.util.List;
+
+import com.sonata.model.Product;
+
+import lombok.Builder;
+
+@Builder
+public class ShoppingCartResponce {
+	private int uId;
+	private int cartId;
+	private int totalItems;
+	private Double totalCost;
+	private List<Product> products;
+	
+	
+	public int getuId() {
+		return uId;
+	}
+	public void setuId(int uId) {
+		this.uId = uId;
+	}
+	public int getCartId() {
+		return cartId;
+	}
+	public void setCartId(int cartId) {
+		this.cartId = cartId;
+	}
+	public int getTotalItems() {
+		return totalItems;
+	}
+	public void setTotalItems(int totalItems) {
+		this.totalItems = totalItems;
+	}
+	public Double getTotalCost() {
+		return totalCost;
+	}
+	public void setTotalCost(Double totalCost) {
+		this.totalCost = totalCost;
+	}
+	public List<Product> getProduct() {
+		return products;
+	}
+	public void setProduct(List<Product> product) {
+		this.products = product;
+	}
+	
+	
+
+
+}

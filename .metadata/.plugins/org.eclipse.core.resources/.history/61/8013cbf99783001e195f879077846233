@@ -1,0 +1,91 @@
+package com.sonata.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.exception.UserNotFoundException;
+import com.sonata.model.Cart;
+import com.sonata.model.Product;
+import com.sonata.model.UserDto;
+import com.sonata.repo.CartRepo;
+
+@Service
+public class CartService {
+	
+	@Autowired
+	 private  CartRepo cartRepo;
+
+	 @Autowired
+	   private RestTemplate restTemplate;
+
+	
+	  public ShoppingCartResponce addProductToCart(UserDto userDto, int pId, int quantity) {
+	        // Check if the user exists
+	        ResponseEntity<UserDto> userResponse = restTemplate.getForEntity("http://localhost:8081/user/dto/{userId}", UserDto.class, userDto.getUserId());
+
+	        if (userResponse.getStatusCode() != HttpStatus.OK) {
+	            throw new UserNotFoundException("User not found");
+	        }
+
+	        // Find or create the cart
+	        Cart cart = cartRepo.findByUserId(userDto.getUserId());
+
+	        if (cart == null) {
+	            cart = new Cart();
+	            cart.setUserId(userDto.getUserId());
+	            cart.setUser(userDto);
+	        }
+
+	        // Fetch product details from the product service
+	        ResponseEntity<Product> productResponse = restTemplate.getForEntity("http://product-service/products/{pId}", Product.class, pId);
+
+	        if (productResponse.getStatusCode() != HttpStatus.OK) {
+	            throw new ProductNotFoundException("Product not found");
+	        }
+
+	        // Add the product to the cart
+	        ProductDTO productDTO = productResponse.getBody();
+	        cart.addProduct(productDTO, quantity);
+
+	        // Save the updated cart
+	        shoppingCartRepository.save(cart);
+
+	        // Convert entities to DTOs
+	        ShoppingCartDTO cartDTO = convertToShoppingCartDTO(cart);
+	        UserDTO userDTO = convertToUserDTO(userDto);
+
+	        // Include product details in the final response
+	        return new ShoppingCartResponse(cartDTO, userDTO, productDTO);
+	    }
+
+	    private ShoppingCartDTO convertToShoppingCartDTO(Cart cart) {
+	        // Your conversion logic from Cart entity to ShoppingCartDTO
+	        ShoppingCartDTO cartDTO = new ShoppingCartDTO();
+	        cartDTO.setCartId(cart.getCartId());
+	        // Set other fields as needed
+	        return cartDTO;
+	    }
+
+	    private UserDTO convertToUserDTO(UserDto userDto) {
+	        // Your conversion logic from UserDto to UserDTO
+	        UserDTO userDTO = new UserDTO();
+	        userDTO.setUserId(userDto.getUserId());
+	        userDTO.setUserName(userDto.getUserName());
+	        // Set other fields as needed
+	        return userDTO;
+	    }
+	
+	
+			
+		
+
+
+}
+	
+	
+	

@@ -1,0 +1,26 @@
+package com.sonata.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.sonata.dto.Product;
+import com.sonata.dto.ShoppingCartRequest;
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.dto.UserDto;
+import com.sonata.model.Cart;
+import com.sonata.repo.CartRepo;
+
+import jakarta.ws.rs.NotFoundException;
+
+@Service
+public class CartService {
+
+	@Autowired
+	private CartRepo cartRepo;
+
+	@Autowired
+	private RestTemplate restTemplate;
+
+	
+}

@@ -1,0 +1,65 @@
+package com.sonata.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import com.sonata.dto.ShoppingCartRequest;
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.repo.CartRepo;
+
+@Service
+public class CartService {
+	
+	@Autowired
+	 private  CartRepo cartRepo;
+
+	 @Autowired
+	   private RestTemplate restTemplate;
+
+	
+	 
+	 
+//	 public ShoppingCartResponce processAddRequest(Long userId, List<ShoppingCartRequest> reqProductList) {
+//		//call user-id
+//		//call product-service
+//	}
+//	 
+//	 
+	
+	 
+	 public ShoppingCartResponce checkUserExists(Long userId) {
+	        String userServiceUrl = "http://localhost:8081/user/";
+	        String userEndpoint = userId.toString();
+
+	        try {
+	            // Make the request
+	            restTemplate.getForObject(userServiceUrl + userEndpoint, String.class);
+
+	            // User exists
+	            return new ShoppingCartResponce(true, "User exists");
+	        } catch (HttpClientErrorException.NotFound ex) {
+	            // User does not exist
+	            return new ShoppingCartResponce(false, "User does not exist");
+	        }
+	    }
+	
+
+
+			
+			
+			
+			
+			
+			
+			
+		
+
+
+}
+	
+	
+	

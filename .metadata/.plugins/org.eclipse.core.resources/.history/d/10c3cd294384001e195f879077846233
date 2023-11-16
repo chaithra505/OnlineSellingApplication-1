@@ -1,0 +1,109 @@
+package com.sonata.service;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sonata.dto.Product;
+import com.sonata.dto.ShoppingCartRequest;
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.dto.UserDto;
+import com.sonata.model.Cart;
+import com.sonata.repo.CartRepo;
+
+import jakarta.ws.rs.NotFoundException;
+
+@Service
+public class CartService {
+
+	@Autowired
+	private CartRepo cartRepo;
+
+	@Autowired
+	private RestTemplate restTemplate;
+	
+	
+	public ShoppingCartResponce processAddRequest(int userId, List<ShoppingCartRequest> shoppingCartRequestList) {
+	    // Call user-service to fetch user details
+	    UserDto userDto = fetchUserDetails("http://localhost:8081/user/dto/{uId}");
+
+	    // Call product-service to fetch product details
+	    List<Product> productServiceList = fetchProductDetails(shoppingCartRequestList);
+
+	    // Calculate total cost
+	    final Double[] totalCost = {0.0};
+	    productServiceList.forEach(psl -> {
+	        shoppingCartRequestList.forEach(scr -> {
+	            if (psl.getpId() == scr.getpId()) {
+	                psl.setQuantity(scr.getQuantity());
+	                totalCost[0] = totalCost[0] + psl.getPrice() * scr.getQuantity();
+	            }
+	        });
+	    });
+
+	    // Create CartEntity
+	    Cart cartEntity = new Cart();
+	    cartEntity.setUser_id(userId);
+	    cartEntity.setCartId((int) (Math.random() * Math.pow(10, 10)));
+	    cartEntity.setTotalItems(productServiceList.size());
+	    cartEntity.setTotalCost(totalCost[0]);
+	    try {
+	        cartEntity.setProducts(new ObjectMapper().writeValueAsString(productServiceList));
+	    } catch (JsonProcessingException e) {
+	        throw new RuntimeException(e);
+	    }
+
+	    // Save CartEntity
+	    cartEntity = cartRepo.save(cartEntity);
+
+	    // Create API response
+	    ShoppingCartResponce response = new ShoppingCartResponce();
+	    response.setCartId(cartEntity.getCartId());
+	    response.setTotalItems(cartEntity.getTotalItems());
+	    response.setTotalCost(cartEntity.getTotalCost());
+	    response.setProducts(productServiceList);
+	    response.setUser(userDto);
+
+	    return response;
+	}
+
+	private UserDto fetchUserDetails(String userServiceUrl, Long userId) {
+	    return webBuilder.build()
+	            .get()
+	            .uri(userServiceUrl, userId)
+	            .retrieve()
+	            .bodyToMono(UserDto.class)
+	            .block();
+	}
+
+	private List<Product> fetchProductDetails(List<ShoppingCartRequest> shoppingCartRequestList) {
+	    String productServiceUrl = "http://product-service/products/getProducts/" + shoppingCartRequestList.stream().map(e -> String.valueOf(e.getpId())).collect(Collectors.joining(","));
+	    return webBuilder.build()
+	            .get()
+	            .uri(productServiceUrl)
+	            .retrieve()
+	            .bodyToFlux(Product.class)
+	            .collectList()
+	            .block();
+	}
+
+
+
+  
+	
+	
+	
+	
+	
+	private UserDto getUserDetails(int userId) {
+        return restTemplate.getForObject("http://localhost:8081/user/dto/{uId}", UserDto.class, userId);
+    }
+
+    private Product getProductDetails(int pId) {
+        return restTemplate.getForObject("http://localhost:8082/product/product-details/{pId}", Product.class, pId);
+    }
+	
+}

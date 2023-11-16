@@ -1,0 +1,20 @@
+package com.sonata.dto;
+
+import jakarta.persistence.Column;
+
+public class cartDto {
+	private int cartId;
+	private String CartName;
+	private int uId;
+	private int pId;
+	private int reqQuantity;
+	
+	@Column(name="ava_quantity")
+	private int quantity;
+	
+	private double price;
+	
+	
+	
+
+}

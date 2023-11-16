@@ -1,0 +1,6 @@
+package com.sonata.exception;
+
+public class ProductNotFoundException  extends Exception {
+
+	
+}

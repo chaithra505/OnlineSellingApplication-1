@@ -1,0 +1,82 @@
+package com.sonata.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.exception.UserNotFoundException;
+import com.sonata.model.Cart;
+import com.sonata.model.Product;
+import com.sonata.model.UserDto;
+import com.sonata.repo.CartRepo;
+
+@Service
+public class CartService {
+	
+	@Autowired
+	 private  CartRepo cartRepo;
+
+	 @Autowired
+	   private RestTemplate restTemplate;
+
+	
+
+	
+	 public ShoppingCartResponce addProductToCart(UserDto userDto, Product product, int quantity) {
+	        // Check if the user exists
+	        ResponseEntity<UserDto> userResponse = restTemplate.getForEntity("http://localhost:8081/user/dto/{userId}", UserDto.class, userDto.getUserId());
+
+	        if (userResponse.getStatusCode() != HttpStatus.OK) {
+	           
+	            throw new UserNotFoundException("User not found");
+	        }
+
+	      
+	        Cart cart = cartRepo.findByUserId(userDto.getUserId());
+
+	        if (cart == null) {
+	            cart = new Cart();
+	            cart.se
+	            (new User(userDto.getUserId(), userDto.getUserName(), userDto.getEmail()));
+	        }
+
+	        // Add the product to the cart (assuming ShoppingCart has a method like `addProduct`)
+	        cart.addProduct(product, quantity);
+
+	        // Save the updated cart
+	        cartRepository.save(cart);
+
+	        // Convert the ShoppingCart entity to ShoppingCartDTO
+	        ShoppingCartDTO cartDTO = convertToShoppingCartDTO(cart);
+
+	        // Call Product Service to get product details
+	        ResponseEntity<ProductDTO> productResponse = restTemplate.getForEntity("http://product-service/{pid}", ProductDTO.class, product.getPid());
+
+	        // Process the response and include product details in the final response
+	        ProductDTO updatedProductDto = productResponse.getBody();
+
+	        return new ShoppingCartResponse(cartDTO, userDto, updatedProductDto);
+	    }
+
+	    private ShoppingCartDTO convertToShoppingCartDTO(ShoppingCart cart) {
+	        // Your conversion logic from ShoppingCart entity to ShoppingCartDTO
+	        ShoppingCartDTO cartDTO = new ShoppingCartDTO();
+	        cartDTO.setCartId(cart.getCartId());
+	        // Set other fields as needed
+	        return cartDTO;
+	    }
+			
+			
+			
+			
+		
+
+
+}
+	
+	
+	

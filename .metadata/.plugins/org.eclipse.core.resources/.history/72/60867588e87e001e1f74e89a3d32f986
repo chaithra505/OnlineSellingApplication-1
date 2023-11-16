@@ -1,0 +1,26 @@
+package com.sonata.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.sonata.model.Product;
+
+import com.sonata.service.ProductService;
+
+public class ProductController {
+	
+	@Autowired
+	private ProductService productservice;
+
+	
+	@PostMapping("/addProduct")
+	 public ResponseEntity<Product> createUser(@RequestBody Product product) {
+	    Product savedproduct = productservice.save(product);
+	     return ResponseEntity.status(HttpStatus.CREATED).body(savedproduct);
+	    }
+	
+
+}

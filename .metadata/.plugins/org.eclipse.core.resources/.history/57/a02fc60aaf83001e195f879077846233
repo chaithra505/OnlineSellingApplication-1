@@ -1,0 +1,66 @@
+package com.sonata.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.sonata.dto.ShoppingCartRequest;
+import com.sonata.dto.ShoppingCartResponce;
+import com.sonata.model.Cart;
+import com.sonata.model.Product;
+import com.sonata.model.UserDto;
+import com.sonata.repo.CartRepo;
+
+import jakarta.ws.rs.NotFoundException;
+
+@Service
+public class CartService {
+
+	  @Autowired
+	    private CartRepo cartRepo;
+
+	    @Autowired
+	    private RestTemplate restTemplate;
+	    
+	    
+	    public ShoppingCartResponce addProductToCart(ShoppingCartRequest request) {
+	        // Fetch user details from the user-service
+	        UserDto user = getUserDetails(request.getUserId());
+
+	        // Fetch product details from the product-service
+	        Product product = getProductDetails(request.getpId());
+
+	        // Check if user and product exist
+	        if (user == null || product == null) {
+	            throw new NotFoundException("User or product not found");
+	        }
+
+	        // Find or create the cart
+	        Cart cart = cartRepo.findByUserId(request.getUserId());
+
+	        if (cart == null) {
+	            // Create a new cart if it doesn't exist
+	            cart = new Cart();
+	            cart.setUserId(request.getUserId());
+	        }
+
+	        // Add the product to the cart
+	        cart.addProduct(product, request.getQuantity());
+
+	        // Save the updated cart
+	        cartRepo.save(cart);
+
+	        // You may need to convert entities to DTOs or build a response based on your requirements
+	        // For simplicity, let's assume you have a response class named ShoppingCartResponse
+	        return new ShoppingCartResponce(cart, product, user);
+	    }
+
+	    private UserDto getUserDetails(int userId) {
+	        return restTemplate.getForObject("http://localhost:8081/user/dto/{userId}", UserDto.class, userId);
+	    }
+
+	    private Product getProductDetails(int pId) {
+	        return restTemplate.getForObject("http://product-service/product-details/{pId}", Product.class, pId);
+	    }
+
+}

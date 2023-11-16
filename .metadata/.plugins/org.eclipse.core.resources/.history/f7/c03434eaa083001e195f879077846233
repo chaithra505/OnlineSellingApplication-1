@@ -1,0 +1,201 @@
+package com.sonata.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sonata.dto.ShoppingCartRequest;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+
+
+@Entity
+@Table(name="cart_details")
+public class Cart {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int cartId;
+	
+	@Column(name="u_id")
+	 private int userId;
+	
+	private int pId;
+	
+	private int totalItems;
+	private Double totalCost;
+	private String products;
+	
+	  @OneToOne
+	  @JoinColumn(name = "user_id")
+	    private UserDto user;  // Assuming you use UserDto here
+
+	
+	
+	  @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+	    private List<Product> productList = new ArrayList<>();
+
+	  
+
+	    public void addProduct(Product product, int quantity) {
+	        // Check if the product is already in the cart
+	        for (Product cartProduct : productList) {
+	            if (cartProduct.getpId() == product.getpId()) {
+	                // Product already exists in the cart, update quantity
+	                cartProduct.setQuantity(cartProduct.getQuantity() + quantity);
+	                return;
+	            }
+	        }
+
+	        // If the product is not in the cart, add it with the given quantity
+	        product.setQuantity(quantity);
+	        productList.add(product);
+	    }
+
+	    
+	    
+
+	    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+	    private List<ShoppingCartRequest> shoppingCartRequest = new ArrayList<>();
+
+	public Cart() {}
+	
+
+
+	public int getpId() {
+		return pId;
+	}
+
+
+
+	public void setpId(int pId) {
+		this.pId = pId;
+	}
+
+
+
+	
+
+
+
+	
+
+
+
+	public List<Product> getProductList() {
+		return productList;
+	}
+
+
+
+	public void setProductList(List<Product> productList) {
+		this.productList = productList;
+	}
+
+
+
+	public List<ShoppingCartRequest> getShoppingCartRequest() {
+		return shoppingCartRequest;
+	}
+
+
+
+	public void setShoppingCartRequest(List<ShoppingCartRequest> shoppingCartRequest) {
+		this.shoppingCartRequest = shoppingCartRequest;
+	}
+
+
+
+	public int getUserId() {
+		return userId;
+	}
+
+
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+
+
+
+	public int getCartId() {
+		return cartId;
+	}
+	public void setCartId(int cartId) {
+		this.cartId = cartId;
+	}
+
+	public int getTotalItems() {
+		return totalItems;
+	}
+	public void setTotalItems(int totalItems) {
+		this.totalItems = totalItems;
+	}
+	public Double getTotalCost() {
+		return totalCost;
+	}
+	public void setTotalCost(Double totalCost) {
+		this.totalCost = totalCost;
+	}
+
+
+	public String getProducts() {
+		return products;
+	}
+
+
+	public void setProducts(String products) {
+		this.products = products;
+	}
+	
+	
+
+	  private List<ShoppingCartRequest> shoppingCartRequests;
+
+	   
+
+	    public void setShoppingCartRequests(List<ShoppingCartRequest> shoppingCartRequests) {
+		this.shoppingCartRequests = shoppingCartRequests;
+	}
+
+
+
+		public List<ShoppingCartRequest> getShoppingCartRequests() {
+	        return shoppingCartRequests;
+	    }
+
+
+
+		public UserDto getUser() {
+			return user;
+		}
+
+
+
+		public void setUser(UserDto user) {
+			this.user = user;
+		}
+
+
+
+		
+		
+		
+		
+}
+	
+
+
+
+	
+	
+	
+
+

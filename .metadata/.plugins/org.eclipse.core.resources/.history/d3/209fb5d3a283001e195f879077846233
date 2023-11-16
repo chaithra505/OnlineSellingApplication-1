@@ -1,0 +1,25 @@
+package com.sonata.dto;
+
+import java.util.List;
+
+import com.sonata.model.Product;
+import com.sonata.model.UserDto;
+
+
+public class ShoppingCartResponce {
+	private int userId;
+	private int Cart carts;
+	
+	private List<Product> products;
+	private UserDto user;
+	
+	
+	public ShoppingCartResponce() {}
+	
+	
+
+	
+	
+
+	
+}

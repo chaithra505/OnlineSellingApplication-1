@@ -1,0 +1,20 @@
+package com.sonata.dto;
+
+import java.util.List;
+
+import com.sonata.model.Product;
+
+public class ShoppingCartDTO {
+	 
+	private int cartId;
+	private int userId;
+	private int pId;
+	private int totalItems;
+	private Double totalCost;
+    private List<Product> products;
+	  
+
+	    // Constructors, getters, setters, and other methods
+	}
+
+

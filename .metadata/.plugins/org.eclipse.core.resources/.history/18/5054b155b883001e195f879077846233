@@ -1,0 +1,8 @@
+package com.sonata.dto;
+
+public class ShoppingCartResponce {
+    private  int userId;
+    private int pId;
+    private int CartId;
+    
+}

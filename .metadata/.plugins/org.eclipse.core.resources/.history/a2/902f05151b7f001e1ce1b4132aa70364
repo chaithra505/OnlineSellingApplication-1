@@ -1,0 +1,15 @@
+package com.sonata.dto;
+
+import lombok.Builder;
+
+@Builder
+public class ShoppingCartResponce {
+	private int uId;
+	private int cartId;
+	private int uId;
+	private int totalItems;
+	private Double totalCost;
+	private String Product;
+	
+
+}
